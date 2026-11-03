@@ -133,7 +133,7 @@
         .header h1 { font-size: 2rem; margin-bottom: 5px; }
         .header p { color: #94a3b8; font-size: 0.95rem; }
 
-        /* Khung tải file to, trái (đúng chuẩn anhriengtu) */
+        /* Khung tải file dài/rộng hơn */
         .card {
             background: rgba(17, 24, 39, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -141,7 +141,7 @@
             padding: 40px; 
             border-radius: 20px; 
             width: 90%; 
-            max-width: 550px;
+            max-width: 680px;
             text-align: center; 
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
             margin-bottom: 20px; 
@@ -223,7 +223,7 @@
         /* Thanh điều khiển hiển thị */
         .controls-container {
             width: 90%;
-            max-width: 900px;
+            max-width: 950px;
             display: flex;
             justify-content: flex-end;
             margin-bottom: 15px;
@@ -244,7 +244,7 @@
         /* Khu vực phân chia theo tháng */
         .month-section {
             width: 90%;
-            max-width: 900px;
+            max-width: 950px;
             margin-bottom: 30px;
         }
         .month-title {
@@ -256,10 +256,11 @@
             margin-bottom: 15px;
         }
 
+        /* Xếp được nhiều ảnh hơn trên một hàng */
         .gallery-grid {
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
-            gap: 16px; 
+            grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); 
+            gap: 12px; 
             width: 100%;
         }
 
@@ -267,7 +268,7 @@
             background: rgba(26, 26, 26, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
-            padding: 10px;
+            padding: 8px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
             text-align: center;
             position: relative;
@@ -281,7 +282,7 @@
         .media-container { 
             position: relative; 
             width: 100%; 
-            height: 140px; 
+            height: 130px; 
             overflow: hidden; 
             border-radius: 10px; 
             display: flex; 
@@ -300,17 +301,17 @@
         .zoom-icon-btn {
             position: absolute; top: 6px; right: 6px;
             background: rgba(0, 0, 0, 0.6); color: #fff; border: none;
-            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
+            width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
             backdrop-filter: blur(4px); transition: transform 0.2s; z-index: 10;
         }
         .zoom-icon-btn:hover { transform: scale(1.1); background: rgba(99, 102, 241, 0.8); }
 
-        .memory-item p { font-size: 0.85rem; font-weight: 600; margin-top: 8px; color: #ffffff; margin-bottom: 2px; }
-        .memory-item span { font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 2px; }
-        .action-btns { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
-        .delete-btn { background-color: #e11d48; color: white; border: none; padding: 5px 10px; font-size: 0.7rem; border-radius: 15px; cursor: pointer; }
-        .download-btn { background-color: #0ea5e9; color: white; text-decoration: none; padding: 5px 10px; font-size: 0.7rem; border-radius: 15px; display: inline-block; }
+        .memory-item p { font-size: 0.8rem; font-weight: 600; margin-top: 6px; color: #ffffff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .memory-item span { font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 2px; }
+        .action-btns { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
+        .delete-btn { background-color: #e11d48; color: white; border: none; padding: 4px 8px; font-size: 0.65rem; border-radius: 15px; cursor: pointer; }
+        .download-btn { background-color: #0ea5e9; color: white; text-decoration: none; padding: 4px 8px; font-size: 0.65rem; border-radius: 15px; display: inline-block; }
 
         /* Light Mode Styling */
         body.light-mode { background-color: #f8fafc; color: #0f172a; }
@@ -379,8 +380,17 @@
 
                 <button class="reset-bg-btn" onclick="resetBackground()">Khôi phục nền mặc định</button>
             </div>
+
             <div class="settings-section">
-                <h4>2. Chế độ hiển thị</h4>
+                <h4>2. Kiểu khung tải ảnh</h4>
+                <div class="theme-options">
+                    <button class="theme-btn" id="cardStyleGlass" onclick="setCardStyle('glass')">✨ Trong suốt</button>
+                    <button class="theme-btn" id="cardStyleSolid" onclick="setCardStyle('solid')">📦 Mặc định</button>
+                </div>
+            </div>
+
+            <div class="settings-section">
+                <h4>3. Chế độ hiển thị</h4>
                 <div class="theme-options">
                     <button class="theme-btn" onclick="setTheme('light')">☀️ Sáng</button>
                     <button class="theme-btn" onclick="setTheme('dark')">🌙 Tối</button>
@@ -476,6 +486,36 @@
             document.getElementById('settingsModal').style.display = 'none';
         }
 
+        // --- QUẢN LÝ KIỂU KHUNG TẢI ẢNH (TRONG SUỐT / MẶC ĐỊNH) ---
+        function setCardStyle(style) {
+            localStorage.setItem('kholuuanhgiadinh_CardStyle', style);
+            applyCardStyle(style);
+        }
+
+        function applyCardStyle(style) {
+            const card = document.getElementById('dropZone');
+            const glassBtn = document.getElementById('cardStyleGlass');
+            const solidBtn = document.getElementById('cardStyleSolid');
+            if (!card) return;
+            if (style === 'solid') {
+                card.style.background = 'rgba(17, 24, 39, 0.85)';
+                card.style.backdropFilter = 'blur(20px)';
+                card.style.border = '1px solid rgba(255, 255, 255, 0.15)';
+                if (glassBtn && solidBtn) {
+                    glassBtn.classList.remove('active');
+                    solidBtn.classList.add('active');
+                }
+            } else {
+                card.style.background = 'rgba(17, 24, 39, 0.15)';
+                card.style.backdropFilter = 'blur(5px)';
+                card.style.border = '1px solid rgba(255, 255, 255, 0.08)';
+                if (glassBtn && solidBtn) {
+                    glassBtn.classList.add('active');
+                    solidBtn.classList.remove('active');
+                }
+            }
+        }
+
         // --- QUẢN LÝ NỀN ĐỒNG BỘ QUA FIREBASE ---
         async function applyBackground(url, isGlobal = false) {
             if (url) {
@@ -537,7 +577,7 @@
         }
 
         function resetBackground() { 
-            applyBackground(null, localStorage.getItem('kholuuanhgiadinh_SyncBg') === 'true'); 
+            applyBackground(null, localStorage.getItem('kholuuanhgiadinh_SyncBg'] === 'true'); 
         }
 
         const bgFileInput = document.getElementById('bgFileInput');
@@ -932,6 +972,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             fetchAndApplyBackground();
             setTheme(localStorage.getItem('kholuuanhgiadinh_Theme') || 'dark');
+            applyCardStyle(localStorage.getItem('kholuuanhgiadinh_CardStyle') || 'glass');
             loadGallery(false);
         });
     </script>
