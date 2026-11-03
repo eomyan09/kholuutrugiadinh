@@ -133,7 +133,7 @@
         .header h1 { font-size: 2rem; margin-bottom: 5px; }
         .header p { color: #94a3b8; font-size: 0.95rem; }
 
-        /* Khung tải file đã được mở rộng rộng rãi (max-width: 950px) */
+        /* Khung tải file đã được mở rộng */
         .card {
             background: rgba(17, 24, 39, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -220,13 +220,24 @@
             cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 3001;
         }
 
-        /* Thanh điều khiển hiển thị */
+        /* Thanh điều khiển hiển thị (Chứa thống kê và nút sắp xếp) */
         .controls-container {
-            width: 95%;
-            max-width: 1200px;
+            width: 90%;
+            max-width: 900px;
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             margin-bottom: 15px;
+        }
+        .media-stats {
+            background: rgba(17, 24, 39, 0.85);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         .sort-select {
             background: rgba(17, 24, 39, 0.85);
@@ -243,8 +254,8 @@
 
         /* Khu vực phân chia theo tháng */
         .month-section {
-            width: 95%;
-            max-width: 1200px;
+            width: 90%;
+            max-width: 900px;
             margin-bottom: 30px;
         }
         .month-title {
@@ -256,11 +267,11 @@
             margin-bottom: 15px;
         }
 
-        /* Giữ nguyên kích thước khung ảnh ban đầu (minmax 170px) nhưng hiển thị nhiều ảnh hơn trên một hàng */
+        /* Giữ nguyên kích thước khung ảnh ban đầu */
         .gallery-grid {
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
-            gap: 14px; 
+            gap: 25px; 
             width: 100%;
         }
 
@@ -324,7 +335,7 @@
         body.light-mode .custom-modal { background: rgba(255, 255, 255, 0.95); color: #0f172a; border-color: rgba(0,0,0,0.15); }
         body.light-mode .custom-modal h3, body.light-mode .settings-section h4 { color: #475569; }
         body.light-mode .settings-toggle-btn { background: rgba(0, 0, 0, 0.05); border-color: rgba(0, 0, 0, 0.15); color: #475569; }
-        body.light-mode .sort-select { background: rgba(255, 255, 255, 0.9); color: #0f172a; border-color: rgba(0, 0, 0, 0.15); }
+        body.light-mode .media-stats, body.light-mode .sort-select { background: rgba(255, 255, 255, 0.9); color: #0f172a; border-color: rgba(0, 0, 0, 0.15); }
         body.light-mode .month-title { color: #475569; border-color: rgba(0, 0, 0, 0.1); }
         body.light-mode .camera-btn { background: rgba(0, 0, 0, 0.05); color: #0f172a; border-color: rgba(0, 0, 0, 0.2); }
     </style>
@@ -404,7 +415,7 @@
             <p>Lưu trữ những tấm ảnh gia đình</p>
         </div>
 
-        <!-- Khung thêm kỷ niệm (Đã mở rộng) -->
+        <!-- Khung thêm kỷ niệm -->
         <div class="card" id="dropZone">
             <h2>✨ Thêm kỷ niệm mới ✨</h2>
             <input type="text" class="input-field" id="memoryName" placeholder="Tên chung cho các file (tùy chọn)...">
@@ -419,8 +430,9 @@
             <button class="manage-btn" onclick="loadGallery(true)">Quản lý kho</button>
         </div>
 
-        <!-- Thanh lựa chọn Mới nhất / Cũ nhất -->
+        <!-- Thanh điều khiển: Hiển thị Thống kê bên trái & Sắp xếp bên phải -->
         <div class="controls-container">
+            <div id="mediaStats" class="media-stats">📊 Đang tải thống kê...</div>
             <select id="sortSelect" class="sort-select" onchange="loadGallery(false)">
                 <option value="desc">Mới nhất</option>
                 <option value="asc">Cũ nhất</option>
@@ -857,21 +869,43 @@
             loadGallery(true);
         }
 
-        // --- HIỂN THỊ GALLERY & PHÂN NHÓM THÁNG ---
+        // --- HIỂN THỊ GALLERY, THỐNG KÊ & PHÂN NHÓM THÁNG ---
         function loadGallery(shouldScroll = false) {
             const gallery = document.getElementById('galleryContainer');
             const sortOrder = document.getElementById('sortSelect').value;
+            const statsEl = document.getElementById('mediaStats');
+            
             gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Đang đồng bộ kho lưu trữ...</p>';
 
             db.collection('memories').onSnapshot((snapshot) => {
                 gallery.innerHTML = '';
+                
+                let imageCount = 0;
+                let videoCount = 0;
+                let audioCount = 0;
+                let items = [];
+
+                snapshot.forEach((doc) => { 
+                    let data = doc.data();
+                    items.push({ id: doc.id, ...data }); 
+                    
+                    if (data.type === 'video') videoCount++;
+                    else if (data.type === 'audio') audioCount++;
+                    else imageCount++;
+                });
+
+                // Cập nhật hiển thị tổng số lượng lên giao diện
+                if (statsEl) {
+                    let statsText = `📊 Tổng: ${imageCount} ảnh`;
+                    if (videoCount > 0) statsText += `, ${videoCount} video`;
+                    if (audioCount > 0) statsText += `, ${audioCount} ghi âm`;
+                    statsEl.textContent = statsText;
+                }
+
                 if (snapshot.empty) {
                     gallery.innerHTML = '<p style="text-align: center; color: #94a3b8; margin-top: 20px;">Chưa có kỷ niệm nào...</p>';
                     return;
                 }
-
-                let items = [];
-                snapshot.forEach((doc) => { items.push({ id: doc.id, ...doc.data() }); });
 
                 items.sort((a, b) => {
                     let timeA = a.createdAt ? a.createdAt.toMillis() : 0;
