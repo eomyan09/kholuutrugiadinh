@@ -133,15 +133,15 @@
         .header h1 { font-size: 2rem; margin-bottom: 5px; }
         .header p { color: #94a3b8; font-size: 0.95rem; }
 
-        /* Khung tải file dài/rộng hơn */
+        /* Khung tải file đã được mở rộng rộng rãi (max-width: 950px) */
         .card {
             background: rgba(17, 24, 39, 0.15); 
             border: 1px solid rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(5px); 
             padding: 40px; 
             border-radius: 20px; 
-            width: 90%; 
-            max-width: 680px;
+            width: 95%; 
+            max-width: 950px;
             text-align: center; 
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); 
             margin-bottom: 20px; 
@@ -222,8 +222,8 @@
 
         /* Thanh điều khiển hiển thị */
         .controls-container {
-            width: 90%;
-            max-width: 950px;
+            width: 95%;
+            max-width: 1200px;
             display: flex;
             justify-content: flex-end;
             margin-bottom: 15px;
@@ -243,8 +243,8 @@
 
         /* Khu vực phân chia theo tháng */
         .month-section {
-            width: 90%;
-            max-width: 950px;
+            width: 95%;
+            max-width: 1200px;
             margin-bottom: 30px;
         }
         .month-title {
@@ -256,11 +256,11 @@
             margin-bottom: 15px;
         }
 
-        /* Xếp được nhiều ảnh hơn trên một hàng */
+        /* Giữ nguyên kích thước khung ảnh ban đầu (minmax 170px) nhưng hiển thị nhiều ảnh hơn trên một hàng */
         .gallery-grid {
             display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(135px, 1fr)); 
-            gap: 12px; 
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); 
+            gap: 14px; 
             width: 100%;
         }
 
@@ -268,7 +268,7 @@
             background: rgba(26, 26, 26, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 14px;
-            padding: 8px;
+            padding: 10px;
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
             text-align: center;
             position: relative;
@@ -282,7 +282,7 @@
         .media-container { 
             position: relative; 
             width: 100%; 
-            height: 130px; 
+            height: 140px; 
             overflow: hidden; 
             border-radius: 10px; 
             display: flex; 
@@ -301,17 +301,17 @@
         .zoom-icon-btn {
             position: absolute; top: 6px; right: 6px;
             background: rgba(0, 0, 0, 0.6); color: #fff; border: none;
-            width: 26px; height: 26px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center; font-size: 0.75rem;
+            width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; font-size: 0.8rem;
             backdrop-filter: blur(4px); transition: transform 0.2s; z-index: 10;
         }
         .zoom-icon-btn:hover { transform: scale(1.1); background: rgba(99, 102, 241, 0.8); }
 
-        .memory-item p { font-size: 0.8rem; font-weight: 600; margin-top: 6px; color: #ffffff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .memory-item span { font-size: 0.65rem; color: #94a3b8; display: block; margin-top: 2px; }
-        .action-btns { display: flex; gap: 4px; justify-content: center; margin-top: 6px; }
-        .delete-btn { background-color: #e11d48; color: white; border: none; padding: 4px 8px; font-size: 0.65rem; border-radius: 15px; cursor: pointer; }
-        .download-btn { background-color: #0ea5e9; color: white; text-decoration: none; padding: 4px 8px; font-size: 0.65rem; border-radius: 15px; display: inline-block; }
+        .memory-item p { font-size: 0.85rem; font-weight: 600; margin-top: 8px; color: #ffffff; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .memory-item span { font-size: 0.7rem; color: #94a3b8; display: block; margin-top: 2px; }
+        .action-btns { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+        .delete-btn { background-color: #e11d48; color: white; border: none; padding: 5px 10px; font-size: 0.7rem; border-radius: 15px; cursor: pointer; }
+        .download-btn { background-color: #0ea5e9; color: white; text-decoration: none; padding: 5px 10px; font-size: 0.7rem; border-radius: 15px; display: inline-block; }
 
         /* Light Mode Styling */
         body.light-mode { background-color: #f8fafc; color: #0f172a; }
@@ -404,7 +404,7 @@
             <p>Lưu trữ những tấm ảnh gia đình</p>
         </div>
 
-        <!-- Khung thêm kỷ niệm -->
+        <!-- Khung thêm kỷ niệm (Đã mở rộng) -->
         <div class="card" id="dropZone">
             <h2>✨ Thêm kỷ niệm mới ✨</h2>
             <input type="text" class="input-field" id="memoryName" placeholder="Tên chung cho các file (tùy chọn)...">
