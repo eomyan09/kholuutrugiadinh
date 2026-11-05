@@ -28,6 +28,26 @@
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
+        /* Vùng kéo thả là toàn bộ trang web */
+        #dropOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(99, 102, 241, 0.2);
+            border: 4px dashed #6366f1;
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffffff;
+            backdrop-filter: blur(5px);
+            pointer-events: none;
+        }
+
         /* Đã ẩn màn hình khóa mật khẩu */
         #lockScreen {
             display: none !important;
@@ -157,10 +177,6 @@
             backdrop-filter: blur(5px) !important;
             border: 1px solid rgba(255, 255, 255, 0.08) !important;
         }
-        .card.dragover {
-            border: 2px dashed #6366f1;
-            background: rgba(99, 102, 241, 0.15);
-        }
 
         .input-field {
             width: 100%; padding: 12px 15px; margin-bottom: 20px; background: rgba(255, 255, 255, 0.05);
@@ -267,7 +283,7 @@
             box-shadow: 0 2px 8px rgba(2, 132, 199, 0.5);
         }
 
-        /* Lightbox Xem toàn màn hình (Video và Ảnh vừa vặn, không quá to/nhỏ) */
+        /* Lightbox Xem toàn màn hình */
         #lightboxModal {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.92); z-index: 3000;
@@ -472,6 +488,9 @@
 </head>
 <body>
 
+    <!-- Vùng phủ khi kéo thả file lên toàn trang -->
+    <div id="dropOverlay">Thả file vào đây để tải lên kho!</div>
+
     <!-- MÀN HÌNH KHÓA MẬT KHẨU (Đã vô hiệu hóa) -->
     <div id="lockScreen"></div>
 
@@ -574,11 +593,12 @@
             <div class="upload-actions-group">
                 <button class="camera-btn" onclick="openCamera()">📷 Camera</button>
                 <button class="camera-btn" id="recordBtn" onclick="toggleRecording()">🎤 Ghi âm</button>
-                <label for="fileInput" class="upload-btn">Chọn hoặc kéo thả</label>
+                <button type="button" class="upload-btn" onclick="openUploadChooser()">Chọn hoặc kéo thả</button>
             </div>
             
-            <!-- Hỗ trợ chọn nhiều file hoặc cả thư mục (webkitdirectory) -->
-            <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple webkitdirectory directory>
+            <!-- Hai input ẩn để chọn file riêng lẻ hoặc chọn thư mục -->
+            <input type="file" id="fileInput" accept="image/*,video/*,audio/*,.heic,.heif" multiple style="display: none;">
+            <input type="file" id="folderInput" webkitdirectory directory style="display: none;">
             
             <div class="manage-actions">
                 <button class="manage-btn" onclick="loadGallery(true)">Quản lý kho</button>
@@ -629,7 +649,7 @@
     </div>
 
     <script>
-        // Tự động khởi chạy giao diện chính ngay khi mở trang (bỏ qua bước nhập mật khẩu)
+        // Tự động khởi chạy giao diện chính ngay khi mở trang
         window.addEventListener('DOMContentLoaded', () => {
             fetchAndApplyBackground();
             applyTransparentFrameSetting();
@@ -1067,31 +1087,59 @@
             setTransform();
         });
 
-        // --- XỬ LÝ FILE & KÉO THẢ ---
+        // --- XỬ LÝ LỰA CHỌN FILE HOẶC THƯ MỤC TỪ NÚT BẤM ---
+        function openUploadChooser() {
+            let choice = confirm("Bấm 'OK' để chọn nhiều file tùy ý\nBấm 'Cancel' để chọn cả một thư mục");
+            if (choice) {
+                document.getElementById('fileInput').click();
+            } else {
+                document.getElementById('folderInput').click();
+            }
+        }
+
         const fileInput = document.getElementById('fileInput');
-        const dropZone = document.getElementById('dropZone');
+        const folderInput = document.getElementById('folderInput');
         const memoryName = document.getElementById('memoryName');
+        const dropOverlay = document.getElementById('dropOverlay');
 
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.add('dragover');
-            }, false);
+        fileInput.addEventListener('change', function() {
+            if (fileInput.files.length > 0) {
+                handleFiles(Array.from(fileInput.files));
+            }
         });
 
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropZone.addEventListener(eventName, (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                dropZone.classList.remove('dragover');
-            }, false);
+        folderInput.addEventListener('change', function() {
+            if (folderInput.files.length > 0) {
+                handleFiles(Array.from(folderInput.files));
+            }
         });
 
-        dropZone.addEventListener('drop', async (e) => {
+        // --- KÉO THẢ TOÀN BỘ TRANG WEB ---
+        let dragCounter = 0;
+
+        window.addEventListener('dragenter', (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            dropZone.classList.remove('dragover');
+            dragCounter++;
+            dropOverlay.style.display = 'flex';
+        });
+
+        window.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            dragCounter--;
+            if (dragCounter <= 0) {
+                dropOverlay.style.display = 'none';
+                dragCounter = 0;
+            }
+        });
+
+        window.addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        window.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dragCounter = 0;
+            dropOverlay.style.display = 'none';
 
             const items = e.dataTransfer.items;
             let filesToProcess = [];
@@ -1136,17 +1184,11 @@
             }
         }
 
-        fileInput.addEventListener('change', function() {
-            if (fileInput.files.length > 0) {
-                handleFiles(Array.from(fileInput.files));
-            }
-        });
-
         async function handleFiles(files) {
             const baseName = memoryName.value.trim() || "Kỷ niệm";
             let successCount = 0;
 
-            alert(`Đang chuẩn bị tải lên ${files.length} file/thư mục...`);
+            alert(`Đang chuẩn bị tải lên ${files.length} file...`);
 
             for (let i = 0; i < files.length; i++) {
                 const file = files[i];
@@ -1187,6 +1229,7 @@
             alert(`Đã tải lên thành công ${successCount}/${files.length} file!`);
             memoryName.value = ''; 
             fileInput.value = '';
+            folderInput.value = '';
             loadGallery(true);
         }
 
